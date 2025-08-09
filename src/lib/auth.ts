@@ -46,6 +46,7 @@ const config: NextAuthConfig = {
     signIn: '/signin',
     error: '/auth/error',
   },
+  trustHost: true,
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)
