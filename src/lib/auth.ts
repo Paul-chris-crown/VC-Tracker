@@ -47,6 +47,7 @@ const config: NextAuthConfig = {
     error: '/auth/error',
   },
   trustHost: true,
+  secret: process.env.NEXTAUTH_SECRET,
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)

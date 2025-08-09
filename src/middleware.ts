@@ -14,31 +14,39 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check authentication using JWT token instead of auth() function
-  const token = await getToken({ 
-    req: request, 
-    secret: process.env.NEXTAUTH_SECRET 
-  })
-  
-  if (!token) {
+  try {
+    const token = await getToken({ 
+      req: request, 
+      secret: process.env.NEXTAUTH_SECRET 
+    })
+    
+    if (!token) {
+      const signInUrl = new URL('/signin', request.url)
+      signInUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(signInUrl)
+    }
+
+    // App routes that require organization context
+    if (pathname.startsWith('/app')) {
+      const orgSlug = pathname.split('/')[2]
+      
+      if (!orgSlug) {
+        // Redirect to organization selection if no org in URL
+        return NextResponse.redirect(new URL('/app', request.url))
+      }
+
+      // Check if user has access to this organization
+      // This will be handled by the page components for better UX
+    }
+
+    return NextResponse.next()
+  } catch (error) {
+    // If there's an error with token verification, redirect to signin
+    console.error('Middleware error:', error)
     const signInUrl = new URL('/signin', request.url)
     signInUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(signInUrl)
   }
-
-  // App routes that require organization context
-  if (pathname.startsWith('/app')) {
-    const orgSlug = pathname.split('/')[2]
-    
-    if (!orgSlug) {
-      // Redirect to organization selection if no org in URL
-      return NextResponse.redirect(new URL('/app', request.url))
-    }
-
-    // Check if user has access to this organization
-    // This will be handled by the page components for better UX
-  }
-
-  return NextResponse.next()
 }
 
 export const config = {
