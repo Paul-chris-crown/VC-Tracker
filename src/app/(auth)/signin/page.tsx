@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, Github, Chrome, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
@@ -100,15 +100,24 @@ export default function SignInPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    <Mail className="h-4 w-4 mr-2" />
-                    {isLoading ? 'Sending...' : 'Send magic link'}
+                    {isLoading ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Sending magic link...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <Mail className="h-4 w-4" />
+                        <span>Continue with Email</span>
+                      </div>
+                    )}
                   </Button>
                 </form>
 
-                {/* OAuth Buttons (Optional) */}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
@@ -118,30 +127,34 @@ export default function SignInPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleOAuthSignIn('google')}
-                    disabled={isLoading}
-                  >
-                    <Chrome className="h-4 w-4 mr-2" />
-                    Continue with Google
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleOAuthSignIn('github')}
-                    disabled={isLoading}
-                  >
-                    <Github className="h-4 w-4 mr-2" />
-                    Continue with GitHub
-                  </Button>
-                </div>
-
-                <div className="text-xs text-gray-500 text-center">
-                  <p>Note: OAuth providers require configuration in your environment variables.</p>
-                  <p>For local development, use the email magic link above.</p>
+                {/* OAuth Providers */}
+                <div className="grid grid-cols-2 gap-4">
+                  {process.env.NODE_ENV === 'development' && (
+                    <>
+                      {process.env.GOOGLE_CLIENT_ID && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleOAuthSignIn('google')}
+                          disabled={isLoading}
+                          className="w-full"
+                        >
+                          <Chrome className="h-4 w-4 mr-2" />
+                          Google
+                        </Button>
+                      )}
+                      {process.env.GITHUB_CLIENT_ID && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleOAuthSignIn('github')}
+                          disabled={isLoading}
+                          className="w-full"
+                        >
+                          <Github className="h-4 w-4 mr-2" />
+                          GitHub
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
               </>
             ) : (
@@ -150,14 +163,14 @@ export default function SignInPage() {
                   <Mail className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Magic link generated!</h3>
-                  <p className="text-gray-600 mt-2">
-                    Check the browser console for the magic link URL
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    (In development, the link is logged instead of sent via email)
+                  <h3 className="text-lg font-semibold text-gray-900">Check your email</h3>
+                  <p className="text-gray-600 mt-1">
+                    We've sent a magic link to <strong>{email}</strong>
                   </p>
                 </div>
+                <p className="text-sm text-gray-500">
+                  Click the link in your email to sign in. The link will expire in 10 minutes.
+                </p>
                 <Button
                   variant="outline"
                   onClick={() => setIsEmailSent(false)}
@@ -167,16 +180,26 @@ export default function SignInPage() {
                 </Button>
               </div>
             )}
-
-            <div className="text-center text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:text-blue-500 font-medium">
-                Sign up
-              </Link>
-            </div>
           </CardContent>
         </Card>
+
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <Link href="/signup" className="text-blue-600 hover:text-blue-500 font-medium">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInForm />
+    </Suspense>
   )
 }

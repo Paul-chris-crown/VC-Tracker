@@ -1,7 +1,8 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock NextAuth
-jest.mock('next-auth/react', () => ({
+vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: {
       user: {
@@ -12,19 +13,19 @@ jest.mock('next-auth/react', () => ({
     },
     status: 'authenticated',
   }),
-  signIn: jest.fn(),
-  signOut: jest.fn(),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
 }))
 
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-    refresh: jest.fn(),
-    prefetch: jest.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
   }),
   usePathname: () => '/',
   useParams: () => ({}),
@@ -32,21 +33,21 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock Pusher
-jest.mock('pusher-js', () => ({
-  default: jest.fn().mockImplementation(() => ({
-    subscribe: jest.fn().mockReturnValue({
-      bind: jest.fn(),
-      unbind: jest.fn(),
+vi.mock('pusher-js', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    subscribe: vi.fn().mockReturnValue({
+      bind: vi.fn(),
+      unbind: vi.fn(),
     }),
-    unsubscribe: jest.fn(),
-    disconnect: jest.fn(),
+    unsubscribe: vi.fn(),
+    disconnect: vi.fn(),
   })),
 }))
 
 // Mock UploadThing
-jest.mock('@uploadthing/react', () => ({
+vi.mock('@uploadthing/react', () => ({
   useUploadThing: () => ({
-    startUpload: jest.fn(),
+    startUpload: vi.fn(),
     isUploading: false,
   }),
   generateComponents: () => ({

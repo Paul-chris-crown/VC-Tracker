@@ -84,6 +84,7 @@ export const searchSchema = z.object({
 
 // Filter schemas
 export const taskFiltersSchema = z.object({
+  projectId: z.string().cuid().optional(),
   status: z.array(statusSchema).optional(),
   priority: z.array(prioritySchema).optional(),
   assigneeIds: z.array(z.string().cuid()).optional(),

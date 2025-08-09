@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         epicId: validatedData.epicId,
         parentTaskId: validatedData.parentTaskId,
         projectId: validatedData.projectId,
-        createdById: session.user.id,
+        createdById: session.user.id!,
         assignees: validatedData.assigneeIds ? {
           create: validatedData.assigneeIds.map(userId => ({
             userId,

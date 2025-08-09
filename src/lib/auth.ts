@@ -44,7 +44,6 @@ const config: NextAuthConfig = {
   },
   pages: {
     signIn: '/signin',
-    signUp: '/signup',
     error: '/auth/error',
   },
 }
